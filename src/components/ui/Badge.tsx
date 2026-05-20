@@ -34,20 +34,20 @@ export function Badge({ variant = 'default', className, children, ...props }: Ba
 // Helper functions to map status/priority to badge variants
 export function getStatusBadgeVariant(status: string): BadgeVariant {
   switch (status) {
-    case 'OPEN': return 'info';
-    case 'IN_PROGRESS': return 'warning';
-    case 'RESOLVED': return 'success';
-    case 'CLOSED': return 'default';
+    case 'Open': return 'info';
+    case 'InProgress': return 'warning';
+    case 'Resolved': return 'success';
+    case 'Closed': return 'default';
     default: return 'default';
   }
 }
 
 export function getPriorityBadgeVariant(priority: string): BadgeVariant {
   switch (priority) {
-    case 'LOW': return 'default';
-    case 'MEDIUM': return 'info';
-    case 'HIGH': return 'warning';
-    case 'URGENT': return 'danger';
+    case 'Low': return 'default';
+    case 'Medium': return 'info';
+    case 'High': return 'warning';
+    case 'Urgent': return 'danger';
     default: return 'default';
   }
 }

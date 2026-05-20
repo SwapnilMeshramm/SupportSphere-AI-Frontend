@@ -2,11 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useAuthStore } from "../../../store/authStore";
-import { 
-  getUserNotifications, 
-  markNotificationRead 
-} from "../../../services/userService";
-import { Notification } from "../../../types/user";
+import { useNotificationStore } from "../../../store/notificationStore";
 import { 
   Bell, 
   Check, 
@@ -24,35 +20,26 @@ import Link from "next/link";
 
 export default function NotificationsPage() {
   const user = useAuthStore((state) => state.user);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { notifications, isLoading, fetchNotifications, markAsRead, markAllAsRead } = useNotificationStore();
   const [filter, setFilter] = useState<"ALL" | "UNREAD">("ALL");
 
-  const fetchNotifications = async () => {
+  const loadNotifications = async () => {
     if (!user) return;
     try {
-      setIsLoading(true);
-      const data = await getUserNotifications(user.id);
-      setNotifications(data || []);
+      await fetchNotifications(user.id);
     } catch (error: any) {
       toast.error("Failed to load notifications.");
-    } finally {
-      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchNotifications();
+    loadNotifications();
   }, [user]);
 
   const handleMarkAsRead = async (id: number) => {
     if (!user) return;
     try {
-      await markNotificationRead(user.id, id);
-      // Update locally
-      setNotifications(prev => 
-        prev.map(n => n.id === id ? { ...n, read: true } : n)
-      );
+      await markAsRead(user.id, id);
       toast.success("Notification marked as read");
     } catch (error) {
       toast.error("Could not update notification");
@@ -61,13 +48,10 @@ export default function NotificationsPage() {
 
   const handleMarkAllAsRead = async () => {
     if (!user) return;
-    const unread = notifications.filter(n => !n.read);
-    if (unread.length === 0) return;
+    if (notifications.every(n => n.read)) return;
 
     try {
-      const promises = unread.map(n => markNotificationRead(user.id, n.id));
-      await Promise.all(promises);
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      await markAllAsRead(user.id);
       toast.success("All notifications marked as read");
     } catch (error) {
       toast.error("Failed to mark all as read");

@@ -30,37 +30,16 @@ import {
   assignTicket 
 } from "../../../../services/ticketService";
 import { getUsers } from "../../../../services/userService";
-import { Ticket, Comment } from "../../../../types/ticket";
+import { Ticket, Comment, TicketPriority, TicketStatus } from "../../../../types/ticket";
 import { User as UserType } from "../../../../types/user";
 import toast from "react-hot-toast";
 
-// Helper normalization mappers
-const normalizeStatusKey = (status: string): string => {
-  const s = status.toUpperCase();
-  if (s === "INPROGRESS" || s === "IN_PROGRESS") return "IN_PROGRESS";
-  return s;
+const isTicketStatus = (status: string): status is TicketStatus => {
+  return TICKET_STATUSES.includes(status as TicketStatus);
 };
 
-const normalizePriorityKey = (priority: string): string => {
-  return priority.toUpperCase();
-};
-
-const mapStatusToApi = (status: string): string => {
-  const s = status.toUpperCase();
-  if (s === "OPEN") return "Open";
-  if (s === "IN_PROGRESS" || s === "INPROGRESS") return "InProgress";
-  if (s === "RESOLVED") return "Resolved";
-  if (s === "CLOSED") return "Closed";
-  return status;
-};
-
-const mapPriorityToApi = (priority: string): string => {
-  const p = priority.toUpperCase();
-  if (p === "LOW") return "Low";
-  if (p === "MEDIUM") return "Medium";
-  if (p === "HIGH") return "High";
-  if (p === "URGENT") return "Urgent";
-  return priority;
+const isTicketPriority = (priority: string): priority is TicketPriority => {
+  return TICKET_PRIORITIES.includes(priority as TicketPriority);
 };
 
 export default function TicketDetailPage() {
@@ -95,8 +74,8 @@ export default function TicketDetailPage() {
       setComments(commentsData || []);
       
       // Initialize edit state variables
-      setEditStatus(normalizeStatusKey(ticketData.status));
-      setEditPriority(normalizePriorityKey(ticketData.priority));
+      setEditStatus(ticketData.status);
+      setEditPriority(ticketData.priority);
       setEditAssigneeId(ticketData.assignedToId ? String(ticketData.assignedToId) : "UNASSIGNED");
 
       // Fetch agents list if agent/admin wants to assign
@@ -145,12 +124,12 @@ export default function TicketDetailPage() {
       // Send updates sequentially or concurrently
       const promises: Promise<any>[] = [];
       
-      if (editStatus !== normalizeStatusKey(ticket.status)) {
-        promises.push(updateTicketStatus(ticketId, mapStatusToApi(editStatus)));
+      if (editStatus !== ticket.status && isTicketStatus(editStatus)) {
+        promises.push(updateTicketStatus(ticketId, editStatus));
       }
       
-      if (editPriority !== normalizePriorityKey(ticket.priority)) {
-        promises.push(updateTicketPriority(ticketId, mapPriorityToApi(editPriority)));
+      if (editPriority !== ticket.priority && isTicketPriority(editPriority)) {
+        promises.push(updateTicketPriority(ticketId, editPriority));
       }
 
       const parsedAssignee = editAssigneeId === "UNASSIGNED" ? null : Number(editAssigneeId);
@@ -186,8 +165,8 @@ export default function TicketDetailPage() {
 
   if (!ticket) return null;
 
-  const currentStatusKey = normalizeStatusKey(ticket.status);
-  const currentPriorityKey = normalizePriorityKey(ticket.priority);
+  const currentStatusKey = ticket.status;
+  const currentPriorityKey = ticket.priority;
   const isAgentOrAdmin = currentUser && (currentUser.role === "Admin" || currentUser.role === "SupportAgent");
 
   return (

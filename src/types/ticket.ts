@@ -1,16 +1,16 @@
 import { User } from './user';
 
-export type TicketStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
-export type TicketPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+export type TicketStatus = 'Open' | 'InProgress' | 'Resolved' | 'Closed';
+export type TicketPriority = 'Low' | 'Medium' | 'High' | 'Urgent';
 
 export interface Ticket {
-  id: string;
+  id: number;
   title: string;
   description: string;
   status: TicketStatus;
   priority: TicketPriority;
-  createdById: string;
-  assignedToId?: string | null;
+  createdById: number;
+  assignedToId?: number | null;
   createdAt: string;
   updatedAt: string;
   createdBy?: User;
@@ -26,7 +26,7 @@ export interface CreateTicketData {
 export interface UpdateTicketData {
   status?: TicketStatus;
   priority?: TicketPriority;
-  assignedToId?: string | null;
+  assignedToId?: number | null;
 }
 
 export interface Comment {

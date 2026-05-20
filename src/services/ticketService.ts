@@ -1,5 +1,12 @@
 import api from "./api";
-import { Ticket, CreateTicketData, UpdateTicketData, Comment } from "../types/ticket";
+import {
+  Ticket,
+  CreateTicketData,
+  UpdateTicketData,
+  Comment,
+  TicketPriority,
+  TicketStatus,
+} from "../types/ticket";
 
 export interface DashboardStats {
   totalTickets: number;
@@ -34,7 +41,7 @@ export const updateTicket = async (
   id: string | number,
   data: UpdateTicketData,
 ): Promise<Ticket> => {
-  const response = await api.put(`/tickets/${id}`, data);
+  const response = await api.patch(`/tickets/${id}`, data);
   return response.data.data.ticket;
 };
 
@@ -57,12 +64,12 @@ export const assignTicket = async (id: string | number, assignedToId: number | n
   return response.data.data.ticket;
 };
 
-export const updateTicketStatus = async (id: string | number, status: string): Promise<Ticket> => {
+export const updateTicketStatus = async (id: string | number, status: TicketStatus): Promise<Ticket> => {
   const response = await api.patch(`/tickets/${id}/status`, { status });
   return response.data.data.ticket;
 };
 
-export const updateTicketPriority = async (id: string | number, priority: string): Promise<Ticket> => {
+export const updateTicketPriority = async (id: string | number, priority: TicketPriority): Promise<Ticket> => {
   const response = await api.patch(`/tickets/${id}/priority`, { priority });
   return response.data.data.ticket;
 };
